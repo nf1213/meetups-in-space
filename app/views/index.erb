@@ -1,6 +1,5 @@
-
-<a href="/create">
-  <div class="create">
+<a href="create">
+  <div class="button">
     Create a meetup!
   </div>
 </a>
@@ -8,6 +7,10 @@
 <h1>Browse Meetups:</h1>
 
 <% @meetups.each do |meetup| %>
-  <h2><%= meetup.name %></h2>
-  <p><%= meetup.description %></p>
+  <a href='/meetups/<%= meetup.id %>' >
+    <div class="meetup">
+      <h2><%= meetup.name %></h2>
+      <p><%= meetup.description %></p>
+    </div>
+  </a>
 <% end %>

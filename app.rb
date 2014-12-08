@@ -72,3 +72,32 @@ post '/create' do
 
   redirect '/'
 end
+
+get '/meetups/:id' do
+  @meetup = Meetup.find(params[:id])
+  @creator = User.find(@meetup.creator_id).username
+  @comments = @meetup.comments
+
+  erb :show
+end
+
+post '/comment/:id' do
+  text = params[:comment]
+  user = current_user.id
+  meetup = params[:id]
+
+  Comment.create!(content: text, user_id: user, meetup_id: meetup)
+  redirect "/meetups/#{meetup}"
+end
+
+get '/join/:id' do
+  meetup = params[:id]
+  user = current_user.id
+
+  begin
+    Reservation.create!(meetup_id: meetup, user_id: user)
+  rescue
+  end
+
+  redirect "/meetups/#{meetup}"
+end
