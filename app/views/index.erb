@@ -1,6 +1,11 @@
-<h1>All Meetups:</h1>
 
-<a href="/create">Create a meetup!</a>
+<a href="/create">
+  <div class="create">
+    Create a meetup!
+  </div>
+</a>
+
+<h1>Browse Meetups:</h1>
 
 <% @meetups.each do |meetup| %>
   <h2><%= meetup.name %></h2>
