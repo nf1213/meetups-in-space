@@ -1,0 +1,21 @@
+<h1>Create your own meetup!</h1>
+
+<form action="/create" method="post">
+  <label for="name">Meetup name</label>
+  <input type="text" id="name" name="name"></br>
+
+  <label for="description">Description</label>
+  <input type="text" id="description" name="description"></br>
+
+  <lable for="planet">Planet</label>
+  <select name="planet">
+    <% @planets.each do |planet| %>
+      <option value="<%= planet.id %>"><%= planet.name %></option>
+    <% end %>
+  </select></br>
+
+  <label for="location">Location Description</label>
+  <input type="text" id="location" name="location"></br>
+
+  <input type="submit" value="Submit"/>
+</form>

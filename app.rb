@@ -30,6 +30,7 @@ def authenticate!
 end
 
 get '/' do
+  @meetups = Meetup.all
   erb :index
 end
 
@@ -52,4 +53,22 @@ end
 
 get '/example_protected_page' do
   authenticate!
+end
+
+get '/create' do
+  @planets = Planet.all
+
+  erb :create
+end
+
+post '/create' do
+  name = params[:name]
+  desc = params[:description]
+  planet = params[:planet]
+  loc = params[:location]
+  creator = current_user.id
+
+  Meetup.create!(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
+
+  redirect '/'
 end
