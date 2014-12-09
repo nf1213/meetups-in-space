@@ -22,10 +22,10 @@ def set_current_user(user)
   session[:user_id] = user.id
 end
 
-def authenticate!
+def authenticate!(page)
   unless signed_in?
     flash[:notice] = 'You need to sign in if you want to do that!'
-    redirect '/'
+    redirect "/#{page}"
   end
 end
 
@@ -52,29 +52,31 @@ get '/sign_out' do
   redirect '/'
 end
 
-get '/example_protected_page' do
-  authenticate!
-end
-
 get '/create' do
+  authenticate!("")
   @planets = Planet.all
 
   erb :create
 end
 
 post '/create' do
+  authenticate!("create")
   name = params[:name]
   desc = params[:description]
   planet = params[:planet]
   loc = params[:location]
   creator = current_user.id
-  can_create = name != '' && desc != '' && loc != '' && signed_in?
 
-  if can_create
-    mu = Meetup.create!(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
+  mu = Meetup.new(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
+  if mu.save
     Reservation.create!(user_id: creator, meetup_id: mu.id)
     redirect "/meetups/#{mu.id}"
   else
+    errors = ""
+    mu.errors.each do |k, v|
+      errors << k.to_s.capitalize + " can't be blank.  "
+    end
+    flash[:notice] = errors
     redirect "/create"
   end
 end
@@ -83,8 +85,7 @@ get '/meetups/:id' do
   @meetup = Meetup.find(params[:id])
   @creator = User.find(@meetup.creator_id).username
   @comments = @meetup.comments.order(created_at: :desc)
-  @signed_in = signed_in?
-  if @signed_in
+  if signed_in?
     @joined = current_user.meetups.exists?(id: @meetup)
     @is_creator = true if @meetup.creator_id == current_user.id
   end
@@ -93,31 +94,42 @@ get '/meetups/:id' do
 end
 
 post '/comment/:id' do
-  text = params[:comment]
   meetup = params[:id]
-  can_create = signed_in? && text != '' && current_user.meetups.exists?(id: meetup)
+  authenticate!("meetups/#{meetup}")
+  user = current_user.id
+  text = params[:comment]
+  joined = current_user.meetups.exists?(id: meetup)
 
-  if can_create
-    user = current_user.id
-    Comment.create!(content: text, user_id: user, meetup_id: meetup)
+  if joined
+    c = Comment.new(content: text, user_id: user, meetup_id: meetup)
+    unless c.save
+      flash[:notice] = "Can't submit blank comment."
+    end
+  else
+    flash[:notice] = "You must join meetup to comment."
   end
   redirect "/meetups/#{meetup}"
 end
 
 get '/join/:id' do
   meetup = params[:id]
+  authenticate!("meetups/#{meetup}")
   user = current_user.id
   joined = current_user.meetups.exists?(id: meetup)
   is_creator = true if Meetup.find(meetup).creator_id == current_user.id
+
   if is_creator
     Meetup.destroy(meetup)
     Reservation.destroy_all(meetup_id: meetup)
     Comment.destroy_all(meetup_id: meetup)
+    flash[:notice] = "Meetup cancelled :("
     redirect '/'
   elsif joined
     Reservation.destroy_all(user_id: user, meetup_id: meetup)
+    flash[:notice] = "You have left the meetup."
   else
     Reservation.create!(meetup_id: meetup, user_id: user)
+    flash[:notice] = "You have joined!"
   end
   redirect "/meetups/#{meetup}"
 end

@@ -1,16 +1,14 @@
-<% if @signed_in %>
-  <a href="/join/<%= @meetup.id %>">
-    <div class="button">
-      <% if @is_creator %>
-        Delete this meetup.
-      <% elsif @joined %>
-        Leave this meetup.
-      <% else %>
-        Join this meetup!
-      <% end %>
-    </div>
-  </a>
-<% end %>
+<a href="/join/<%= @meetup.id %>">
+  <div class="button">
+    <% if @is_creator %>
+      Delete this meetup.
+    <% elsif @joined %>
+      Leave this meetup.
+    <% else %>
+      Join this meetup!
+    <% end %>
+  </div>
+</a>
 
 <h1><%= @meetup.name %></h1>
 <p><%= @meetup.description %></p>
@@ -18,12 +16,11 @@
 <p><%= @meetup.planet.name %></p>
 <p><%= @creator %></p>
 
-<% if @signed_in %>
-  <form action="/comment/<%= @meetup.id %>" method="post">
-    <label for="comment">Leave a comment</label>
-    <input type="text" name="comment" id="comment"/>
-  </form>
-<% end %>
+<form action="/comment/<%= @meetup.id %>" method="post">
+  <label for="comment">Leave a comment</label>
+  <input type="text" name="comment" id="comment"/>
+  <input type="submit" value="Post"/>
+</form>
 
 <h2>Who's going?</h2>
 <ul>
