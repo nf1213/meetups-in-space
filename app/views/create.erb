@@ -2,20 +2,20 @@
 
 <form action="/create" method="post">
   <label for="name">Meetup name</label>
-  <input type="text" id="name" name="name"></br>
+  <input type="text" id="name" name="name"></br></br>
 
   <label for="description">Description</label>
-  <input type="text" id="description" name="description"></br>
+  <input type="text" id="description" name="description"></br></br>
 
   <lable for="planet">Planet</label>
   <select name="planet">
     <% @planets.each do |planet| %>
       <option value="<%= planet.id %>"><%= planet.name %></option>
     <% end %>
-  </select></br>
+  </select></br></br>
 
   <label for="location">Location Description</label>
-  <input type="text" id="location" name="location"></br>
+  <input type="text" id="location" name="location"></br></br>
 
   <input type="submit" value="Submit"/>
 </form>

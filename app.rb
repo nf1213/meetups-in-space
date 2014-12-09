@@ -70,6 +70,7 @@ post '/create' do
   mu = Meetup.new(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
   if mu.save
     Reservation.create!(user_id: creator, meetup_id: mu.id)
+    flash[:notice] = "You have created this meetup!"
     redirect "/meetups/#{mu.id}"
   else
     errors = ""
@@ -83,7 +84,7 @@ end
 
 get '/meetups/:id' do
   @meetup = Meetup.find(params[:id])
-  @creator = User.find(@meetup.creator_id).username
+  @creator = User.find(@meetup.creator_id)
   @comments = @meetup.comments.order(created_at: :desc)
   if signed_in?
     @joined = current_user.meetups.exists?(id: @meetup)
