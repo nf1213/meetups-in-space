@@ -30,7 +30,8 @@ def authenticate!
 end
 
 get '/' do
-  @meetups = Meetup.all
+  @meetups = Meetup.all.order(:name)
+  @signed_in = signed_in?
   erb :index
 end
 
@@ -67,37 +68,49 @@ post '/create' do
   planet = params[:planet]
   loc = params[:location]
   creator = current_user.id
+  can_create = name != '' && desc != '' && loc != '' && signed_in?
 
-  Meetup.create!(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
-
-  redirect '/'
+  if can_create
+    mu = Meetup.create!(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
+    redirect "/meetups/#{mu.id}"
+  else
+    redirect "/create"
+  end
 end
 
 get '/meetups/:id' do
   @meetup = Meetup.find(params[:id])
   @creator = User.find(@meetup.creator_id).username
-  @comments = @meetup.comments
+  @comments = @meetup.comments.order(created_at: :desc)
+  @signed_in = signed_in?
+  if @signed_in
+    @joined = current_user.meetups.exists?(id: @meetup)
+  end
 
   erb :show
 end
 
 post '/comment/:id' do
-  text = params[:comment]
-  user = current_user.id
   meetup = params[:id]
+  can_create = signed_in? && text != '' && current_user.meetups.exists?(id: meetup)
 
-  Comment.create!(content: text, user_id: user, meetup_id: meetup)
+  if can_create
+    text = params[:comment]
+    user = current_user.id
+    Comment.create!(content: text, user_id: user, meetup_id: meetup)
+  end
   redirect "/meetups/#{meetup}"
 end
 
 get '/join/:id' do
   meetup = params[:id]
   user = current_user.id
-
-  begin
+  joined = current_user.meetups.exists?(id: meetup)
+  if joined
+    reservation = Reservation.find_by(user_id: user, meetup_id: meetup).id
+    Reservation.destroy(reservation)
+  else
     Reservation.create!(meetup_id: meetup, user_id: user)
-  rescue
   end
-
   redirect "/meetups/#{meetup}"
 end

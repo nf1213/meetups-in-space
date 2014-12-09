@@ -1,8 +1,14 @@
-<a href="/join/<%= @meetup.id %>">
-  <div class="button">
-    Join this meetup!
-  </div>
-</a>
+<% if @signed_in %>
+  <a href="/join/<%= @meetup.id %>">
+    <div class="button">
+      <% if @joined %>
+        Leave this meetup.
+      <% else %>
+        Join this meetup!
+      <% end %>
+    </div>
+  </a>
+<% end %>
 
 <h1><%= @meetup.name %></h1>
 <p><%= @meetup.description %></p>

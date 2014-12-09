@@ -1,8 +1,10 @@
-<a href="create">
-  <div class="button">
-    Create a meetup!
-  </div>
-</a>
+<% if @signed_in %>
+  <a href="create">
+    <div class="button">
+      Create a meetup!
+    </div>
+  </a>
+<% end %>
 
 <h1>Browse Meetups:</h1>
 
