@@ -72,6 +72,7 @@ post '/create' do
 
   if can_create
     mu = Meetup.create!(name: name, description: desc, location: loc, planet_id: planet, creator_id: creator)
+    Reservation.create!(user_id: creator, meetup_id: mu.id)
     redirect "/meetups/#{mu.id}"
   else
     redirect "/create"
@@ -85,17 +86,18 @@ get '/meetups/:id' do
   @signed_in = signed_in?
   if @signed_in
     @joined = current_user.meetups.exists?(id: @meetup)
+    @is_creator = true if @meetup.creator_id == current_user.id
   end
 
   erb :show
 end
 
 post '/comment/:id' do
+  text = params[:comment]
   meetup = params[:id]
   can_create = signed_in? && text != '' && current_user.meetups.exists?(id: meetup)
 
   if can_create
-    text = params[:comment]
     user = current_user.id
     Comment.create!(content: text, user_id: user, meetup_id: meetup)
   end
@@ -106,9 +108,14 @@ get '/join/:id' do
   meetup = params[:id]
   user = current_user.id
   joined = current_user.meetups.exists?(id: meetup)
-  if joined
-    reservation = Reservation.find_by(user_id: user, meetup_id: meetup).id
-    Reservation.destroy(reservation)
+  is_creator = true if Meetup.find(meetup).creator_id == current_user.id
+  if is_creator
+    Meetup.destroy(meetup)
+    Reservation.destroy_all(meetup_id: meetup)
+    Comment.destroy_all(meetup_id: meetup)
+    redirect '/'
+  elsif joined
+    Reservation.destroy_all(user_id: user, meetup_id: meetup)
   else
     Reservation.create!(meetup_id: meetup, user_id: user)
   end

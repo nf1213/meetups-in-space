@@ -1,7 +1,9 @@
 <% if @signed_in %>
   <a href="/join/<%= @meetup.id %>">
     <div class="button">
-      <% if @joined %>
+      <% if @is_creator %>
+        Delete this meetup.
+      <% elsif @joined %>
         Leave this meetup.
       <% else %>
         Join this meetup!
@@ -16,10 +18,12 @@
 <p><%= @meetup.planet.name %></p>
 <p><%= @creator %></p>
 
-<form action="/comment/<%= @meetup.id %>" method="post">
-  <label for="comment">Leave a comment</label>
-  <input type="text" name="comment" id="comment"/>
-</form>
+<% if @signed_in %>
+  <form action="/comment/<%= @meetup.id %>" method="post">
+    <label for="comment">Leave a comment</label>
+    <input type="text" name="comment" id="comment"/>
+  </form>
+<% end %>
 
 <h2>Who's going?</h2>
 <ul>
