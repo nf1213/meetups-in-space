@@ -18,7 +18,12 @@
 <p><%= @meetup.description %></p>
 <p><%= @meetup.location %></p>
 <p><%= @meetup.planet.name %></p>
-<p class="user"><img class='avatar' src='<%= @creator.avatar_url %>'/></br><%= @creator.username %></p>
+<p>Created <%= @meetup.created_at.asctime%></p>
+<a href="http://github.com/<%= @creator.username %>">
+  <div class="user">
+    <img class='avatar' src='<%= @creator.avatar_url %>'/></br><%= @creator.username %>
+  </div>
+</a>
 
 <form action="/comment/<%= @meetup.id %>" method="post">
   <label for="comment">Leave a comment</label>
@@ -28,7 +33,11 @@
 
 <h2>Who's going?</h2>
 <% @meetup.users.each do |user| %>
-  <div class="user"><img class='avatar' src='<%= user.avatar_url %>'/></br><%= user.username %></div>
+  <a href="http://github.com/<%= user.username %>">
+    <div class="user">
+      <img class='avatar' src='<%= user.avatar_url %>'/></br><%= user.username %>
+    </div>
+  </a>
 <% end %>
 
 <h2>Comments</h2>

@@ -74,8 +74,8 @@ post '/create' do
     redirect "/meetups/#{mu.id}"
   else
     errors = ""
-    mu.errors.each do |k, v|
-      errors << k.to_s.capitalize + " can't be blank.  "
+    mu.errors.full_messages.each do |error|
+      errors << error + ". "
     end
     flash[:notice] = errors
     redirect "/create"
